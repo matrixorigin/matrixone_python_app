@@ -115,12 +115,10 @@ class StockAnalysis(object):
 
                         for j in range(0, len(df.ts_code)):
                             if ts_code == df.ts_code[j] and min_pe > df.pe[j] > 0:
-                                print(df[j])
                                 logging.getLogger().info("ts_code: %s", ts_code)
                                 logging.getLogger().info("history lowest PE : %f", min_pe)
                                 logging.getLogger().info("current PE found: %f", df.pe[j])
                             if ts_code == df.ts_code[j] and min_pb > df.pb[j] > 0:
-                                print(df.pb[j])
                                 logging.getLogger().info("ts_code: %s", ts_code)
                                 logging.getLogger().info("history lowest PB: %f", min_pb)
                                 logging.getLogger().info("current PB found: %f", df.pb[j])
