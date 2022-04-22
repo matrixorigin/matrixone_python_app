@@ -37,7 +37,6 @@ class StockAnalysis(object):
         start_date: start date for the requested stock data, YYYYMMDD, default is "", which means no limit.
         end_date: end date for the requested stock data, YYYYMMDD, default is "", which means no limit.
     """
-
     def fetchData(self):
         with TuShareClient(self.tushareToken) as tsCli:
             if len(self.stockList) == 0:
@@ -86,6 +85,9 @@ class StockAnalysis(object):
                 except ConnectionError as e:
                     logging.getLogger().error("DB Error, %s", str(e))
 
+    """
+    Find stocks that the current P/E or P/B is even lower than the historical lowest
+    """
     def findLowPE(self):
         with MOClient(self.dbHost, self.dbUser, self.dbPassword, self.dbName, self.dbPort) as moCli:
             try:
