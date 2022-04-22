@@ -47,7 +47,6 @@ class StockAnalysis(object):
                                                 fields='ts_code,symbol,name,area,industry,fullname,list_date, market,exchange,is_hs')
                 self.stockList = pool.ts_code
 
-            print(self.stockList)
             logging.getLogger().info("Get stock number: %d", len(self.stockList))
 
             with MOClient(self.dbHost, self.dbUser, self.dbPassword, self.dbName, self.dbPort) as moCli:
