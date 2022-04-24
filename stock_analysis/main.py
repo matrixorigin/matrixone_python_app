@@ -86,13 +86,13 @@ class StockAnalysis(object):
                     logging.getLogger().error("DB Error, %s", str(e))
 
     """
-    Find stocks that the current P/E or P/B is even lower than the historical lowest
+    Find stocks that the current P/E is even lower than the historical lowest
     """
     def findLowPE(self):
         with MOClient(self.dbHost, self.dbUser, self.dbPassword, self.dbName, self.dbPort) as moCli:
             try:
                 moCli.db_cursor.execute(
-                    'select ts_code,min(pe),min(pb) from pe where pe>0 and pb>0 group by ts_code order by ts_code')
+                    'select ts_code, min(pe) from pe where pe>0 group by ts_code')
                 # Fetch the result as python object
                 value = moCli.db_cursor.fetchall()
                 with TuShareClient(self.tushareToken) as tsCli:
@@ -105,23 +105,58 @@ class StockAnalysis(object):
                         "offset": ""
                     }, fields=[
                         "ts_code",
-                        "pe",
-                        "pb"
+                        "pe"
                     ])
                     df = df.fillna(0.0)
-
+                    low_pe_num = 0
                     for i in range(0, len(value)):
-                        ts_code, min_pe, min_pb = value[i]
-
+                        ts_code, min_pe = value[i]
                         for j in range(0, len(df.ts_code)):
                             if ts_code == df.ts_code[j] and min_pe > df.pe[j] > 0:
                                 logging.getLogger().info("ts_code: %s", ts_code)
                                 logging.getLogger().info("history lowest PE : %f", min_pe)
                                 logging.getLogger().info("current PE found: %f", df.pe[j])
+                                low_pe_num+=1
+                    logging.getLogger().info("All stocks analyzed. %s lowest PE stock have been located.", low_pe_num)    
+            except Exception as e:
+                logging.getLogger().error("fetch failed, %s", str(e))
+
+    """
+    Find stocks that the current P/B is even lower than the historical lowest
+    """
+    def findLowPB(self):
+        with MOClient(self.dbHost, self.dbUser, self.dbPassword, self.dbName, self.dbPort) as moCli:
+            try:
+                moCli.db_cursor.execute(
+                    'select ts_code, min(pb) from pe where pb>0 group by ts_code')
+                # Fetch the result as python object
+                value = moCli.db_cursor.fetchall()
+                with TuShareClient(self.tushareToken) as tsCli:
+                    df = tsCli.apiCli.daily_basic(**{
+                        "ts_code": "",
+                        "trade_date": self.tradeDate,
+                        "start_date": "",
+                        "end_date": "",
+                        "limit": "",
+                        "offset": ""
+                    }, fields=[
+                        "ts_code",
+                        "pb"
+                    ])
+                    df = df.fillna(0.0)
+
+                    low_pb_num = 0
+                    for i in range(0, len(value)):
+                        ts_code, trade_date, min_pb = value[i]
+
+                        for j in range(0, len(df.ts_code)):
                             if ts_code == df.ts_code[j] and min_pb > df.pb[j] > 0:
                                 logging.getLogger().info("ts_code: %s", ts_code)
                                 logging.getLogger().info("history lowest PB: %f", min_pb)
                                 logging.getLogger().info("current PB found: %f", df.pb[j])
+
+                    logging.getLogger().info("All stocks analyzed. %s lowest PB stock have been located.", low_pb_num)    
+
             except Exception as e:
                 logging.getLogger().error("fetch failed, %s", str(e))
 
