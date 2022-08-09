@@ -16,7 +16,7 @@ pip3 install -r requirements.txt
 2. Load historical data. 
 ```bash 
 # Execute under the matrixone_python_app directory
-python -m stock_analysis.main fetchData --tushareToken='YOUR_TUSHARE_API_TOKEN'
+python3 -m stock_analysis.main fetchData --tushareToken='YOUR_TUSHARE_API_TOKEN'
 ```
 
 3. Find lowest P/E stock.
